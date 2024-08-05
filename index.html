@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora 6</title>
+    <title>Calculadora de Metas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,14 +64,25 @@
         p {
             font-size: 16px;
         }
-        #required-rate-month, #required-rate-year {
+        .radio-group{
+            display: inline-block;
+        }
+        .radio-group div {
+            display: flex;
+            margin: 5px;
+            align-content: flex-start;
+        }
+        h3 {
+            margin: 10px 0;
+            font-size: 18px;
+            color: rgb(6, 44, 53);
+        }
+        #time-needed {
             font-weight: bold;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            width: 100%;
             font-size: 18px;
             text-align: center;
-            background-color: rgb(6, 44, 53); 
+            padding: 1px;
+            background-color: rgb(6, 44, 53);
             color: #ffffff;
             border-radius: 5px;
             margin-top: 10px;
@@ -79,74 +90,82 @@
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>Calculadora 6</h2>
-    <h3>Valor investido:</h3>
-    <p>50 reais por mês</p>
-    <h3>Período:</h3>
-    <p>1 ano</p>
-    
-    <label for="goal"><h3>Digite o valor da meta:</h3></label>
-    <input type="number" id="goal" placeholder="Digite o valor da meta">
-
-    <button onclick="calculateReturn()"><b>Calcular</b></button>
-
-    <div class="results" id="result">
-        <div>
-            <p>Taxa necessária por mês:</p>
-            <div id="required-rate-month">0%</div>
+    <div class="container">
+        <h2>Calculadora 6</h2>
+        
+        <label for="meta"><h3>Escolha a Meta de Viagem:</h3></label>
+        <div class="radio-group">
+            <div>
+                <input type="radio" id="nyc" name="meta" value="36164" checked>
+                <label for="nyc"><b>Intercâmbio NYC </b>- R$ 36.164,00 </label>
+            </div>
+            <div>
+                <input type="radio" id="paris" name="meta" value="26770">
+                <label for="paris"><b>Férias em Paris</b>- R$ 26.770,00</label>
+            </div>
+            <div>
+                <input type="radio" id="disney" name="meta" value="39586">
+                <label for="disney"><b>Disney</b>- R$ 39.586,00</label>
+            </div>
+            <div>
+                <input type="radio" id="jeri" name="meta" value="14203">
+                <label for="jeri"><b>Jericoacoara </b>- R$ 14.203,00</label>
+            </div>
         </div>
+
+        <h3>Rendimento do investimento:</h3>
+        <p>1% ao mês</p>
+        
+        <label for="rendaExtra"><h3>Renda Extra Mensal (R$):</h3></label>
+        <input type="number" id="rendaExtra" placeholder="Digite a renda extra mensal"><br>
+        
+        <label for="corteGastos"><h3>Corte de Gastos Mensal (R$):</h3></label>
+        <input type="number" id="corteGastos" placeholder="Digite o corte de gastos mensal"><br>
+        
         <div>
-            <p>Taxa necessária por ano:</p>
-            <div id="required-rate-year">0%</div>
+            <button onclick="calcular()">Calcular</button>
+        </div>
+        
+        <div class="results" id="resultadoDiv">
+            <p>Tempo necessário para atingir a meta:</p>
+            <div id="time-needed"></div>
         </div>
     </div>
-</div>
 
-<script>
-function calculateReturn() {
-    const goal = parseFloat(document.getElementById('goal').value);
-    const timeFrame = 1; // Prazo fixo de 1 ano
-    const monthlySavings = 50;
-
-    if (isNaN(goal) || goal <= 0) {
-        alert('Por favor, insira um valor válido para a meta.');
-        return;
-    }
-
-    // Número de meses no período
-    const months = timeFrame * 12;
-
-    // Função para calcular a taxa de juros necessária
-    const equation = r => monthlySavings * ((1 + r) ** months - 1) / r - goal;
-    const initialGuess = 0.01;
-    const monthlyRate = fsolve(equation, initialGuess);
-
-    // Convertendo a taxa mensal para anual
-    const annualRate = (1 + monthlyRate) ** 12 - 1;
-
-    function fsolve(equation, initialGuess) {
-        let x = initialGuess;
-        for (let i = 0; i < 100; i++) {
-            const fx = equation(x);
-            const dfx = (equation(x + 1e-6) - fx) / 1e-6;
-            const x_new = x - fx / dfx;
-            if (Math.abs(x - x_new) < 1e-6) {
+    <script>
+    function calcular() {
+        // Obtém o valor da meta selecionada
+        const metaRadios = document.getElementsByName('meta');
+        let meta = 0;
+        for (const radio of metaRadios) {
+            if (radio.checked) {
+                meta = parseFloat(radio.value);
                 break;
             }
-            x = x_new;
         }
-        return x;
+
+        // Obtém os valores de renda extra e corte de gastos
+        const rendaExtra = parseFloat(document.getElementById('rendaExtra').value) || 0;
+        const corteGastos = parseFloat(document.getElementById('corteGastos').value) || 0;
+
+        // Calcula o valor guardado em um ano com uma taxa de rendimento de 1% ao mês
+        const rendimentoMensal = 0.01;
+        const valorMensalGuardado = rendaExtra + corteGastos;
+        
+        // Calcula a quantidade de meses para atingir a meta
+        let valorAcumulado = 0;
+        let meses = 0;
+        while (valorAcumulado < meta) {
+            valorAcumulado += valorMensalGuardado;
+            valorAcumulado *= (1 + rendimentoMensal); // Aplica rendimento mensal
+            meses++;
+        }
+
+        // Exibe o resultado
+        const resultadoDiv = document.getElementById('resultadoDiv');
+        resultadoDiv.style.display = 'block';
+        document.getElementById('time-needed').innerHTML = `<p>${meses} meses</p>`;
     }
-
-    document.getElementById('required-rate-month').innerText = `${(monthlyRate * 100).toFixed(2)}%`;
-    document.getElementById('required-rate-year').innerText = `${(annualRate * 100).toFixed(2)}%`;
-
-    // Exibir resultados
-    document.getElementById('result').style.display = 'block';
-}
-</script>
-
+    </script>
 </body>
 </html>
