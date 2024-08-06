@@ -87,6 +87,10 @@
             border-radius: 5px;
             margin-top: 10px;
         }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -125,6 +129,8 @@
         <div>
             <button onclick="calcular()">Calcular</button>
         </div>
+
+        <div id="error-message" class="error"></div>
         
         <div class="results" id="resultadoDiv">
             <p>Tempo necessário para atingir a meta:</p>
@@ -148,6 +154,15 @@
         const rendaExtra = parseFloat(document.getElementById('rendaExtra').value) || 0;
         const corteGastos = parseFloat(document.getElementById('corteGastos').value) || 0;
 
+        // Verifica se ambos os valores são zero
+        if (rendaExtra === 0 && corteGastos === 0) {
+            document.getElementById('error-message').innerText = 'Por favor, adicione um valor para renda extra ou corte de gastos.';
+            document.getElementById('resultadoDiv').style.display = 'none';
+            return;
+        } else {
+            document.getElementById('error-message').innerText = '';
+        }
+
         // Calcula o valor guardado em um ano com uma taxa de rendimento de 1% ao mês
         const rendimentoMensal = 0.01;
         const valorMensalGuardado = rendaExtra + corteGastos;
@@ -169,3 +184,4 @@
     </script>
 </body>
 </html>
+
